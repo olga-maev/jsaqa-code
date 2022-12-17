@@ -14,4 +14,17 @@ describe("Books names test suit", () => {
       "Гарри Поттер",
     ]);
   });
+  it("Books names should be sorted  is early order", () => {
+    expect(
+      sorting.sortByName([
+      "Властелин Колец",
+      "Властелин Колец",
+      "Властелин Колец",
+      ])
+    ).toEqual([
+      "Властелин Колец",
+      "Властелин Колец",
+      "Властелин Колец",
+    ]);
+  });
 });
