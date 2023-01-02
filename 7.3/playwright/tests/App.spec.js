@@ -1,27 +1,32 @@
-const { test, expect, chromium } = require("@playwright/test");
 
-test("test", async ({ page }) => {
-  const browser=await chromium.launch({
-    headless: false,
-    slowMo: 5000;
-    devtools: true
-  });
-  // Go to https://netology.ru/free/management#/
-  await page.goto("https://netology.ru/free/management#/");
+import { test, expect } from "@playwright/test";
+import { userName, password } from "../user.js";
 
-  // Click a
-  await page.click("a");
-  await expect(page).toHaveURL("https://netology.ru/");
+const faker = require("faker");
+const badUserName = faker.internet.email();
 
-  // Click text=Учиться бесплатно
-  await page.click("text=Учиться бесплатно");
-  await expect(page).toHaveURL("https://netology.ru/free");
+test("Successful login", async ({ page }) => {
+  await page.goto("https://netology.ru/?modal=sign_in");
+  await page.getByPlaceholder("Email").click();
+  await page.getByPlaceholder("Email").fill(userName);
+  await page.getByPlaceholder("Пароль").click();
+  await page.getByPlaceholder("Пароль").fill(password);
+  await page.getByTestId("login-submit-btn").click();
+  await expect(page).toHaveURL("https://netology.ru/profile");
+  await expect(
+    page.getByRole("heading", { name: "Мои курсы и профессии" })
+  ).toBeVisible({ timeout: 10000 });
+});
 
-  page.click("text=Бизнес и управление");
-
-  // Click text=Как перенести своё дело в онлайн
-  await page.click("text=Как перенести своё дело в онлайн");
-  await expect(page).toHaveURL(
-    "https://netology.ru/programs/kak-perenesti-svoyo-delo-v-onlajn-bp"
+test("Unsuccessful login", async ({ page }) => {
+  await page.goto("https://netology.ru/?modal=sign_in");
+  await page.getByPlaceholder("Email").click();
+  await page.getByPlaceholder("Email").fill(badUserName);
+  await page.getByPlaceholder("Пароль").click();
+  await page.getByPlaceholder("Пароль").fill(password);
+  await page.getByTestId("login-submit-btn").click();
+  await expect(page.getByTestId("login-error-hint")).toBeVisible;
+  await expect(page.getByTestId("login-error-hint")).toHaveText(
+    "Вы ввели неправильно логин или пароль"
   );
 });
